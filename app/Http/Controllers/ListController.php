@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\TaskList;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
 class ListController extends Controller
 {
     public function index(): View
     {
-        // Own lists only (SRS-02). Collaborator lists (SRS-06) can be merged in later
-        // once the collaboration table from that teammate's feature exists.
         $lists = TaskList::where('user_id', auth()->id())
             ->withCount('tasks')
             ->latest()
@@ -33,10 +33,16 @@ class ListController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $list = TaskList::create([
-            ...$validated,
-            'user_id' => auth()->id(),
-        ]);
+        try {
+            $list = DB::transaction(function () use ($validated) {
+                return TaskList::create([
+                    ...$validated,
+                    'user_id' => auth()->id(),
+                ]);
+            });
+        } catch (Throwable $e) {
+            return back()->withInput()->with('error', 'Gagal membuat list, silakan coba lagi.');
+        }
 
         return redirect()->route('lists.show', $list)->with('status', 'List berhasil dibuat.');
     }
@@ -66,7 +72,13 @@ class ListController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        $list->update($validated);
+        try {
+            DB::transaction(function () use ($list, $validated) {
+                $list->update($validated);
+            });
+        } catch (Throwable $e) {
+            return back()->withInput()->with('error', 'Gagal mengupdate list, silakan coba lagi.');
+        }
 
         return redirect()->route('lists.show', $list)->with('status', 'List berhasil diupdate.');
     }
@@ -75,12 +87,17 @@ class ListController extends Controller
     {
         $this->authorizeOwner($list);
 
-        $list->delete();
+        try {
+            DB::transaction(function () use ($list) {
+                $list->delete();
+            });
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal menghapus list, silakan coba lagi.');
+        }
 
         return redirect()->route('lists.index')->with('status', 'List berhasil dihapus.');
     }
 
-    // Simple ownership guard. Swap for a proper Policy once auth (SRS-01) is finalized.
     private function authorizeOwner(TaskList $list): void
     {
         abort_unless($list->user_id === auth()->id(), 403);
