@@ -37,7 +37,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="#" class="back-link">← Kembali ke List</a>
+        <a href="{{ route('lists.show', $list) }}" class="back-link">← Kembali ke List</a>
 
         <h1>Kelola Member</h1>
         <p class="subtitle">List: <strong>{{ $list->name }}</strong></p>

@@ -1,95 +1,142 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress — {{ $list->name }}</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: #f3f4f6; min-height: 100vh; padding: 2rem; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .subtitle { color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; }
-        .card { background: #fff; border-radius: 0.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.25rem; }
-        .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; color: #374151; }
-        /* Progress bar */
-        .percentage-label { font-size: 2.5rem; font-weight: 800; color: #3b82f6; text-align: center; margin-bottom: 0.5rem; }
-        .progress-bar-wrap { background: #e5e7eb; border-radius: 9999px; height: 18px; overflow: hidden; margin-bottom: 0.75rem; }
-        .progress-bar-fill { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #3b82f6, #06b6d4); transition: width 0.6s ease; }
-        .progress-note { font-size: 0.85rem; color: #6b7280; text-align: center; }
-        /* Stat cards */
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.25rem; }
-        .stat { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; text-align: center; }
-        .stat-value { font-size: 1.75rem; font-weight: 700; }
-        .stat-label { font-size: 0.78rem; color: #6b7280; margin-top: 0.25rem; }
-        .stat.total   .stat-value { color: #374151; }
-        .stat.done    .stat-value { color: #10b981; }
-        .stat.pending .stat-value { color: #f59e0b; }
-        /* Completed badge */
-        .badge-done { display: inline-block; background: #d1fae5; color: #065f46; border-radius: 9999px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; }
-        .badge-inprogress { display: inline-block; background: #dbeafe; color: #1e40af; border-radius: 9999px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; }
-        .badge-empty { display: inline-block; background: #f3f4f6; color: #6b7280; border-radius: 9999px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; }
-        .text-center { text-align: center; }
-        .back-link { display: inline-block; margin-bottom: 1rem; color: #3b82f6; text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="#" class="back-link">← Kembali ke List</a>
+<x-app-layouts>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div>
+                <a href="{{ route('lists.show', $list) }}" class="text-sm text-indigo-600 hover:underline inline-flex items-center gap-1 mb-1">
+                    &larr; Kembali ke List
+                </a>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Monitoring Progress: {{ $list->name }}
+                </h2>
+            </div>
+            <a href="{{ route('lists.show', $list) }}" class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200">
+                Lihat Detail Tugas
+            </a>
+        </div>
+    </x-slot>
 
-        <h1>Monitoring Progress</h1>
-        <p class="subtitle">List: <strong>{{ $list->name }}</strong></p>
+    <div class="py-8 max-w-4xl mx-auto px-4 space-y-6">
+        @if ($list->description)
+            <p class="text-gray-600">{{ $list->description }}</p>
+        @endif
 
-        {{-- SRS-07: Progress bar utama --}}
-        <div class="card">
-            <h2>Progress Penyelesaian Tugas</h2>
+        {{-- Kartu Utama Ringkasan Progress --}}
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="font-semibold text-gray-800 text-lg mb-4">Progres Penyelesaian Tugas</h3>
 
             @if ($totalTasks === 0)
-                <p class="text-center" style="color:#9ca3af; padding: 1rem 0;">
-                    Belum ada tugas dalam list ini.
-                </p>
-                <div class="text-center">
-                    <span class="badge-empty">Belum ada tugas</span>
+                <div class="text-center py-8">
+                    <p class="text-gray-500 mb-2">Belum ada tugas dalam list ini.</p>
+                    <a href="{{ route('tasks.create', $list) }}" class="inline-block px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+                        + Tambah Tugas Pertama
+                    </a>
                 </div>
             @else
-                <div class="percentage-label">{{ $percentage }}%</div>
+                {{-- Persentase & Status Badge --}}
+                <div class="text-center mb-6">
+                    <div class="text-5xl font-extrabold text-indigo-600 mb-2">
+                        {{ $percentage }}%
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        <strong>{{ $completedTasks }}</strong> dari <strong>{{ $totalTasks }}</strong> tugas telah diselesaikan
+                    </p>
 
-                <div class="progress-bar-wrap">
-                    <div class="progress-bar-fill" style="width: {{ $percentage }}%"></div>
+                    <div class="mt-3">
+                        @if ($percentage === 100)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                &#10003; Semua Tugas Selesai
+                            </span>
+                        @elseif ($percentage > 0)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                Sedang Dikerjakan
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                Belum Ada yang Selesai
+                            </span>
+                        @endif
+                    </div>
                 </div>
 
-                <p class="progress-note">
-                    {{ $completedTasks }} dari {{ $totalTasks }} tugas selesai
-                </p>
-
-                <div class="text-center" style="margin-top: 0.75rem;">
-                    @if ($percentage === 100)
-                        <span class="badge-done">✓ Semua tugas selesai!</span>
-                    @elseif ($percentage > 0)
-                        <span class="badge-inprogress">Sedang dikerjakan</span>
-                    @else
-                        <span class="badge-empty">Belum ada yang selesai</span>
-                    @endif
+                {{-- Progress Bar Dinamis --}}
+                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-6">
+                    <div class="bg-indigo-600 h-4 rounded-full transition-all duration-500 ease-out" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                {{-- Statistik detail --}}
-                <div class="stats">
-                    <div class="stat total">
-                        <div class="stat-value">{{ $totalTasks }}</div>
-                        <div class="stat-label">Total Tugas</div>
+                {{-- Grid Statistik --}}
+                <div class="grid grid-cols-3 gap-4 border-t pt-4">
+                    <div class="text-center p-3 bg-gray-50 rounded-lg">
+                        <span class="block text-2xl font-bold text-gray-800">{{ $totalTasks }}</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-wide">Total Tugas</span>
                     </div>
-                    <div class="stat done">
-                        <div class="stat-value">{{ $completedTasks }}</div>
-                        <div class="stat-label">Selesai</div>
+                    <div class="text-center p-3 bg-green-50 rounded-lg">
+                        <span class="block text-2xl font-bold text-green-600">{{ $completedTasks }}</span>
+                        <span class="text-xs text-green-700 uppercase tracking-wide">Selesai</span>
                     </div>
-                    <div class="stat pending">
-                        <div class="stat-value">{{ $pendingTasks }}</div>
-                        <div class="stat-label">Belum Selesai</div>
+                    <div class="text-center p-3 bg-amber-50 rounded-lg">
+                        <span class="block text-2xl font-bold text-amber-600">{{ $pendingTasks }}</span>
+                        <span class="text-xs text-amber-700 uppercase tracking-wide">Belum Selesai</span>
                     </div>
                 </div>
             @endif
         </div>
+
+        @if ($totalTasks > 0)
+            {{-- Rincian Tugas yang Masih Perlu Diselesaikan --}}
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="font-semibold text-gray-800 text-base mb-4 flex items-center justify-between">
+                    <span>Tugas Belum Selesai ({{ $pendingTasks }})</span>
+                </h3>
+
+                @if ($pendingTaskList->isEmpty())
+                    <p class="text-sm text-green-600">Hebat! Tidak ada tugas yang tertunda.</p>
+                @else
+                    <div class="divide-y">
+                        @foreach ($pendingTaskList as $task)
+                            <div class="py-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-900 font-medium text-sm">{{ $task->title }}</p>
+                                    @if ($task->due_date)
+                                        <p class="text-xs text-gray-400">Deadline: {{ $task->due_date->format('d M Y') }}</p>
+                                    @endif
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full text-xs
+                                    @if($task->priority === 'high') bg-red-100 text-red-700
+                                    @elseif($task->priority === 'medium') bg-yellow-100 text-yellow-700
+                                    @else bg-gray-100 text-gray-600
+                                    @endif">
+                                    {{ ucfirst($task->priority) }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- Rincian Tugas yang Sudah Selesai --}}
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="font-semibold text-gray-800 text-base mb-4">
+                    Tugas Selesai ({{ $completedTasks }})
+                </h3>
+
+                @if ($completedTaskList->isEmpty())
+                    <p class="text-sm text-gray-500">Belum ada tugas yang selesai.</p>
+                @else
+                    <div class="divide-y">
+                        @foreach ($completedTaskList as $task)
+                            <div class="py-3 flex items-center justify-between opacity-75">
+                                <div>
+                                    <p class="text-gray-700 line-through text-sm">{{ $task->title }}</p>
+                                    @if ($task->due_date)
+                                        <p class="text-xs text-gray-400">Selesai • Deadline: {{ $task->due_date->format('d M Y') }}</p>
+                                    @endif
+                                </div>
+                                <span class="text-xs text-green-600 font-medium">&#10003; Selesai</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
-</body>
-</html>
+</x-app-layouts>

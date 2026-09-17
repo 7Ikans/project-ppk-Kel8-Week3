@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ListMemberController;
+use App\Http\Controllers\ListProgressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ListController;
@@ -37,6 +38,11 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/lists/{list}/members/{user}', [ListMemberController::class, 'destroy'])
         ->name('lists.members.destroy');
+
+    // SRS-07: Monitoring Progress — Pantau progres penyelesaian tugas
+    Route::get('/lists/{list}/progress', [ListProgressController::class, 'show'])
+        ->name('lists.progress');
+
 
     // SRS-08: Manajemen User oleh Admin
     Route::get('/admin/users', [AdminUserController::class, 'index'])

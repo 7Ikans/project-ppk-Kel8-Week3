@@ -27,17 +27,25 @@ class ListProgressController extends Controller
             abort(403, 'Anda tidak memiliki akses ke list ini.');
         }
 
-        $totalTasks     = $list->tasks()->count();
-        $completedTasks = $list->tasks()->where('is_completed', true)->count();
+        // Ambil semua tasks dengan sorting deadline terdekat
+        $tasks          = $list->tasks()->orderBy('due_date')->get();
+        $totalTasks     = $tasks->count();
+        $completedTasks = $tasks->where('is_completed', true)->count();
         $pendingTasks   = $totalTasks - $completedTasks;
         $percentage     = $list->progressPercentage();
+
+        // Filter tugas berdasarkan status untuk rincian di monitoring
+        $pendingTaskList   = $tasks->where('is_completed', false);
+        $completedTaskList = $tasks->where('is_completed', true);
 
         return view('lists.progress', compact(
             'list',
             'totalTasks',
             'completedTasks',
             'pendingTasks',
-            'percentage'
+            'percentage',
+            'pendingTaskList',
+            'completedTaskList'
         ));
     }
 }
