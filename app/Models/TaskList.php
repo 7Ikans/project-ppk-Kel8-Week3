@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TaskList extends Model
@@ -33,6 +34,11 @@ class TaskList extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class, 'list_id');
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'list_user', 'list_id', 'user_id');
     }
 
     // SRS-07: progress percentage (used by teammate's monitoring feature too)
