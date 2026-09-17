@@ -4,8 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JARA - {{ $title ?? 'Todo List' }}</title>
-    {{-- SEMENTARA: Tailwind lewat CDN, ga perlu npm install/build.
-         Ganti ke Vite+Tailwind proper kalau tim udah sepakat setup akhirnya kayak apa. --}}
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">

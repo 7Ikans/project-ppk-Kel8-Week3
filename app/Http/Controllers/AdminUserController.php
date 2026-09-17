@@ -4,22 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class AdminUserController extends Controller
 {
     public function index()
     {
-        $users = User::all(); 
-        // Diubah dari 'admin.users.index' menjadi 'admin.index'
+        $users = User::all();
+
         return view('admin.index', compact('users'));
     }
 
     public function create()
     {
-        // Tetap menggunakan 'admin.create'
         return view('admin.create');
     }
+
 
     public function store(Request $request)
     {
@@ -30,12 +32,18 @@ class AdminUserController extends Controller
             'role' => 'required|in:admin,user',
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), 
-            'role' => $request->role,
-        ]);
+        try {
+            DB::transaction(function () use ($request) {
+                User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'role' => $request->role,
+                ]);
+            });
+        } catch (Throwable $e) {
+            return back()->withInput()->with('error', 'Gagal menambahkan akun pengguna, silakan coba lagi.');
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil ditambahkan.');
     }
@@ -43,12 +51,18 @@ class AdminUserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
+
         if (auth()->id() == $user->id) {
             return redirect()->route('admin.users.index')->with('error', 'Gagal: Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        $user->delete();
+        try {
+            DB::transaction(function () use ($user) {
+                $user->delete();
+            });
+        } catch (Throwable $e) {
+            return redirect()->route('admin.users.index')->with('error', 'Gagal menghapus akun pengguna, silakan coba lagi.');
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dihapus.');
     }
