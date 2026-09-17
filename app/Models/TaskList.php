@@ -20,10 +20,15 @@ class TaskList extends Model
         'description',
     ];
 
+    /**
+     * SRS-02 & SRS-09: Relasi ke pemilik (owner) list.
+     * Pengguna pembuat list otomatis menjadi owner melalui foreign key user_id.
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
 
     public function tasks(): HasMany
     {

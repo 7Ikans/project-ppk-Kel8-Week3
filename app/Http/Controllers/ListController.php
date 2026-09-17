@@ -26,6 +26,11 @@ class ListController extends Controller
         return view('lists.create');
     }
 
+    /**
+     * SRS-02: Membuat list baru
+     * SRS-09: Kepemilikan List Otomatis — Pengguna yang membuat daftar tugas baru
+     * secara otomatis menjadi pemilik (owner) dengan menetapkan user_id dari user yang sedang login (auth()->id()).
+     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -35,11 +40,12 @@ class ListController extends Controller
 
         $list = TaskList::create([
             ...$validated,
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id(), // SRS-09: Otomatis menetapkan pembuat sebagai owner
         ]);
 
         return redirect()->route('lists.show', $list)->with('status', 'List berhasil dibuat.');
     }
+
 
     public function show(TaskList $list): View
     {

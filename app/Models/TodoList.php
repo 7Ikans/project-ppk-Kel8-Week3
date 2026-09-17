@@ -19,13 +19,15 @@ class TodoList extends Model
     ];
 
     /**
-     * SRS-02: Relasi ke pemilik (owner) list.
+     * SRS-02 & SRS-09: Relasi ke pemilik (owner) list.
+     * Pengguna pembuat list otomatis menjadi owner melalui foreign key user_id.
      * Setiap list dimiliki oleh satu user.
      */
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
 
     /**
      * SRS-06: Kolaborasi List
