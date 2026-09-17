@@ -20,3 +20,6 @@ Admin bertanggung jawab menambah dan menghapus akun pengguna dalam sistem.
 | SRS-06 | **Kolaborasi List** — Pemilik list dapat menambahkan pengguna lain ke dalam list tugas untuk bekerja bersama. | Owner dapat menambahkan user ke list dan user tersebut dapat mengakses tugas dalam list. |
 | SRS-07 | **Monitoring Progress** — Pengguna dapat melihat perkembangan penyelesaian tugas dalam suatu list. | Sistem menampilkan jumlah/progres tugas selesai dibandingkan seluruh tugas. |
 | SRS-08 | **Manajemen User oleh Admin** — Admin dapat menambah dan menghapus akun pengguna. | Admin dapat membuat akun user baru dan menghapus akun yang terdaftar. |
+| SRS-09 | **Kepemilikan List Otomatis** — Pengguna yang membuat daftar tugas baru akan secara otomatis menjadi pemilik (owner) daftar tersebut. | Sistem secara otomatis menetapkan status owner kepada pembuat list saat proses create berhasil |
+| SRS-10 | **Penghapusan List Menyeluruh** — Pengguna dapat menghapus daftar yang dimilikinya beserta seluruh tugas dan keanggotaan di dalamnya. | Saat owner menghapus list, data list, seluruh tugas (task), dan data kolaborator di dalamnya ikut terhapus seluruhnya. |
+
