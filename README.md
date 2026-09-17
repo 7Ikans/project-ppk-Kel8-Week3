@@ -20,3 +20,11 @@ Admin bertanggung jawab menambah dan menghapus akun pengguna dalam sistem.
 | SRS-06 | **Kolaborasi List** — Pemilik list dapat menambahkan pengguna lain ke dalam list tugas untuk bekerja bersama. | Owner dapat menambahkan user ke list dan user tersebut dapat mengakses tugas dalam list. |
 | SRS-07 | **Monitoring Progress** — Pengguna dapat melihat perkembangan penyelesaian tugas dalam suatu list. | Sistem menampilkan jumlah/progres tugas selesai dibandingkan seluruh tugas. |
 | SRS-08 | **Manajemen User oleh Admin** — Admin dapat menambah dan menghapus akun pengguna. | Admin dapat membuat akun user baru dan menghapus akun yang terdaftar. |
+
+## Daftar NFR
+
+| Kode | Kebutuhan Keamanan & Sistem (NFR) | Kriteria |
+| :--- | :--- | :--- |
+| NFR-01 | **Integritas Transaksi (Atomik)** — Setiap proses perubahan data yang saling terkait harus berjalan secara atomik. Jika salah satu langkah gagal, maka seluruh perubahan dibatalkan. | Fitur menggunakan *Database Transaction*. Jika eksekusi gagal atau error, sistem melakukan *Rollback*. Jika sukses, sistem melakukan *Commit*. |
+| NFR-02 | **Keamanan Akses (Otorisasi)** — Permintaan tindakan dari pengguna yang tidak memiliki wewenang atau hak milik harus ditolak secara tegas. | Terdapat pengecekan *role* atau hak akses. Jika pengguna yang tidak berhak mengakses rute/fitur, sistem mengembalikan pesan error atau mengalihkannya (*redirect*). |
+| NFR-03 | **Keamanan Database (Anti-SQLi)** — Seluruh input yang berasal dari pengguna wajib divalidasi dan diproses ke database menggunakan antarmuka yang aman. | Seluruh interaksi ke database diproses menggunakan Query Terparameterisasi (*Prepared Statement*). Tidak ada celah *SQL Injection*. |
