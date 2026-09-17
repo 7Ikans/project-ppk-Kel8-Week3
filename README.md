@@ -23,3 +23,10 @@ Admin bertanggung jawab menambah dan menghapus akun pengguna dalam sistem.
 | SRS-09 | **Kepemilikan List Otomatis** — Pengguna yang membuat daftar tugas baru akan secara otomatis menjadi pemilik (owner) daftar tersebut. | Sistem secara otomatis menetapkan status owner kepada pembuat list saat proses create berhasil |
 | SRS-10 | **Penghapusan List Menyeluruh** — Pengguna dapat menghapus daftar yang dimilikinya beserta seluruh tugas dan keanggotaan di dalamnya. | Saat owner menghapus list, data list, seluruh tugas (task), dan data kolaborator di dalamnya ikut terhapus seluruhnya. |
 
+## Daftar NFR
+
+| Kode | Kebutuhan Keamanan & Sistem (NFR) | Kriteria |
+| :--- | :--- | :--- |
+| NFR-01 | **Integritas Transaksi (Atomik)** — Setiap proses perubahan data yang saling terkait harus berjalan secara atomik. Jika salah satu langkah gagal, maka seluruh perubahan dibatalkan. | Fitur menggunakan *Database Transaction*. Jika eksekusi gagal atau error, sistem melakukan *Rollback*. Jika sukses, sistem melakukan *Commit*. |
+| NFR-02 | **Keamanan Akses (Otorisasi)** — Permintaan tindakan dari pengguna yang tidak memiliki wewenang atau hak milik harus ditolak secara tegas. | Terdapat pengecekan *role* atau hak akses. Jika pengguna yang tidak berhak mengakses rute/fitur, sistem mengembalikan pesan error atau mengalihkannya (*redirect*). |
+| NFR-03 | **Keamanan Database (Anti-SQLi)** — Seluruh input yang berasal dari pengguna wajib divalidasi dan diproses ke database menggunakan antarmuka yang aman. | Seluruh interaksi ke database diproses menggunakan Query Terparameterisasi (*Prepared Statement*). Tidak ada celah *SQL Injection*. |
